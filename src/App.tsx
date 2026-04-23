@@ -32,8 +32,8 @@ const App: React.FC = () => {
           <ProjectorView />
         )}
 
-        {/* Global Navigation Hint for Demo */}
-        {view !== 'landing' && view !== 'projector' && (
+        {/* Global Navigation */}
+        {view !== 'landing' && (
           <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-center gap-4 bg-slate-950/80 backdrop-blur-sm border-t border-slate-800 z-50">
             <button 
               onClick={() => setView('onboarding')}

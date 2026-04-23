@@ -2,16 +2,27 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sparkles, Target, Zap, Trophy, X } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy, X, Settings, Maximize2, Minimize2 } from 'lucide-react';
 
 export const ProjectorView: React.FC = () => {
   const { profiles } = useAppContext();
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) ?? null;
+  const isFullscreen = typeof document !== 'undefined' && Boolean(document.fullscreenElement);
+
+  const toggleFullscreen = async () => {
+    if (typeof document === 'undefined') return;
+    if (!document.fullscreenElement) {
+      await document.documentElement.requestFullscreen();
+      return;
+    }
+    await document.exitFullscreen();
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-4 md:p-8 overflow-hidden flex flex-col">
+    <div className="min-h-screen bg-slate-950 text-white p-4 pb-24 md:p-8 md:pb-28 overflow-hidden flex flex-col relative">
       <header className="flex justify-between items-center mb-6 md:mb-8">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 md:w-12 md:h-12 bg-cyan-500 rounded-xl flex items-center justify-center neon-cyan rotate-3">
@@ -24,8 +35,31 @@ export const ProjectorView: React.FC = () => {
             <p className="text-slate-500 font-mono tracking-widest text-[10px] md:text-xs mt-1">LIVE CARD WALL</p>
           </div>
         </div>
-        <Badge variant="secondary" className="text-[10px] md:text-xs">{profiles.length} CARDS</Badge>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            className="inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:text-white hover:border-cyan-500"
+            onClick={() => setIsSettingsOpen((prev) => !prev)}
+          >
+            <Settings className="w-3.5 h-3.5" /> 설정
+          </button>
+          <Badge variant="secondary" className="text-[10px] md:text-xs">{profiles.length} CARDS</Badge>
+        </div>
       </header>
+
+      {isSettingsOpen && (
+        <div className="absolute top-16 right-4 md:top-20 md:right-8 z-40 w-52 rounded-xl border border-slate-800 bg-slate-900/95 p-3 space-y-2">
+          <div className="text-xs text-slate-300 font-semibold">프로젝터 설정</div>
+          <button
+            type="button"
+            className="w-full inline-flex items-center justify-center gap-1 h-8 px-3 rounded-md bg-cyan-600 hover:bg-cyan-500 text-xs font-semibold"
+            onClick={toggleFullscreen}
+          >
+            {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            {isFullscreen ? '전체화면 해제' : '전체화면'}
+          </button>
+        </div>
+      )}
 
       {profiles.length === 0 ? (
         <div className="flex-1 flex items-center justify-center text-slate-500 text-center px-6">
