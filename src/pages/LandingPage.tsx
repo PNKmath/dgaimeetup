@@ -26,9 +26,6 @@ export const LandingPage: React.FC<{ onJoin: () => void; onViewProjector: () => 
 
         <Card className="border-slate-800 bg-slate-900/40 p-8 glass neon-cyan">
           <CardContent className="p-0 flex flex-col items-center gap-6">
-            <div className="w-full rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-sm text-cyan-200">
-              QR 없이 운영합니다. 카톡방에 사이트 링크를 공유해서 바로 입장해주세요.
-            </div>
             <Button 
               size="lg" 
               className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black text-xl py-8 transition-all hover:scale-105"

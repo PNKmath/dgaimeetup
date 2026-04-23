@@ -99,10 +99,10 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-cyan-400" /> 기본 정보</Label>
               <p className="text-xs text-slate-400 leading-relaxed">
-                닉네임은 다른 참가자가 바로 알아볼 수 있게 적어주세요. 직업/역할은 지금 하고 있는 일을 한 줄로 적으면 됩니다.
+                1. 닉네임(가급적 카톡 프로필 이름과 같게 해주세요)
               </p>
               <Input 
-                placeholder="닉네임 (예: 대구빌더)" 
+                placeholder="닉네임(가급적 카톡 프로필 이름과 같게)" 
                 required 
                 value={formData.nickname}
                 onChange={e => setFormData({...formData, nickname: e.target.value})}
@@ -116,10 +116,10 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
                 className="bg-slate-900/50"
               />
               <p className="text-xs text-slate-400 leading-relaxed">
-                서로 연결할 수 있도록 쓰레드 ID를 남겨주세요. 예: telegram:-1001234567890:17585
+                2. 공유할 쓰레드SNS ID(예: pnkmath)
               </p>
               <Input 
-                placeholder="공유할 쓰레드 ID (예: discord:#ai-meetup 또는 telegram:-1001234567890:17585)" 
+                placeholder="공유할 쓰레드SNS ID(예: pnkmath)" 
                 required 
                 value={formData.threadId}
                 onChange={e => setFormData({...formData, threadId: e.target.value})}
