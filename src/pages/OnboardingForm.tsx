@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { AIExperienceLevel } from '../types';
+import type { AIExperienceLevel } from '../types';
 import { TECH_TAGS, calculateLevel } from '../lib/constants';
 import { Button } from '../components/ui/button';
 import { Input, Textarea } from '../components/ui/input';

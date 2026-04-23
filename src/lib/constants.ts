@@ -1,4 +1,4 @@
-import { TechTag } from "../types";
+import type { TechTag } from "../types";
 
 export const TECH_TAGS: TechTag[] = [
   // Foundation (2-3pts)

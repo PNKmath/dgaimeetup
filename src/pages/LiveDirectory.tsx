@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { AIExperienceLevel } from '../types';
+import type { AIExperienceLevel } from '../types';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-import { Search, MessageSquare, ExternalLink, Trophy, Target, Zap } from 'lucide-react';
+import { Search, MessageSquare, Trophy, Target, Zap } from 'lucide-react';
 
 export const LiveDirectory: React.FC = () => {
   const { profiles } = useAppContext();

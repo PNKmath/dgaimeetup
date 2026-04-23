@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-import { UserProfile } from '../types';
+import type { UserProfile } from '../types';
 
 interface AppContextType {
   profiles: UserProfile[];
@@ -38,7 +38,7 @@ const MOCK_PROFILES: UserProfile[] = [
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [profiles, setProfiles] = useState<UserProfile[]>(MOCK_PROFILES);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
 
   const addProfile = (profileData: Omit<UserProfile, 'id' | 'createdAt'>) => {
     const newProfile: UserProfile = {

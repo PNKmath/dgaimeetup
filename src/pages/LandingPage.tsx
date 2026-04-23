@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Sparkles, Zap, ChevronRight, Share2 } from 'lucide-react';
+import { Sparkles, ChevronRight, Share2 } from 'lucide-react';
 
 export const LandingPage: React.FC<{ onJoin: () => void; onViewProjector: () => void }> = ({ onJoin, onViewProjector }) => {
   return (

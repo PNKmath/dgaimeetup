@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sparkles, Target, Zap, Users, Trophy } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy } from 'lucide-react';
 
 export const ProjectorView: React.FC = () => {
   const { profiles } = useAppContext();
