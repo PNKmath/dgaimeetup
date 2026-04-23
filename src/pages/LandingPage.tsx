@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
-import { Sparkles, ChevronRight, Share2 } from 'lucide-react';
+import { Sparkles, ChevronRight } from 'lucide-react';
 
 export const LandingPage: React.FC<{ onJoin: () => void; onViewProjector: () => void }> = ({ onJoin, onViewProjector }) => {
   return (
@@ -26,12 +26,8 @@ export const LandingPage: React.FC<{ onJoin: () => void; onViewProjector: () => 
 
         <Card className="border-slate-800 bg-slate-900/40 p-8 glass neon-cyan">
           <CardContent className="p-0 flex flex-col items-center gap-6">
-            <div className="w-48 h-48 bg-white p-4 rounded-xl flex items-center justify-center">
-              {/* Placeholder for QR Code */}
-              <div className="text-slate-800 font-bold text-center">
-                <Share2 className="w-12 h-12 mx-auto mb-2 text-slate-400" />
-                <span className="text-xs">QR 코드를 스캔하세요</span>
-              </div>
+            <div className="w-full rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 text-sm text-cyan-200">
+              QR 없이 운영합니다. 카톡방에 사이트 링크를 공유해서 바로 입장해주세요.
             </div>
             <Button 
               size="lg" 

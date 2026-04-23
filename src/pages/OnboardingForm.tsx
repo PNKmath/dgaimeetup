@@ -17,6 +17,7 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
   const [formData, setFormData] = useState({
     nickname: '',
     occupation: '',
+    threadId: '',
     keywords: ['', '', ''],
     selectedTechs: [] as string[],
     achievement: '',
@@ -32,14 +33,15 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
 
   const currentLevel = useMemo(() => calculateLevel(currentScore), [currentScore]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formData.selectedTechs.length === 0) {
       alert('최소 하나 이상의 기술 키워드를 선택해주세요!');
       return;
     }
-    addProfile({
+    await addProfile({
       ...formData,
+      isCompleted: false,
       keywords: formData.keywords.filter(k => k.trim() !== ''),
       calculatedScore: currentScore,
       aiExperienceLevel: currentLevel as AIExperienceLevel,
@@ -82,7 +84,7 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
             AI Meetup Onboarding
           </CardTitle>
           <CardDescription>
-            기술 스택을 체크하면 당신의 AI 레벨이 자동 측정됩니다.
+            각 문항 아래 가이드를 참고해서 편하게 작성하세요. 기술 스택을 체크하면 AI 레벨이 자동 측정됩니다.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,6 +98,9 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
 
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><Briefcase className="w-4 h-4 text-cyan-400" /> 기본 정보</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                닉네임은 다른 참가자가 바로 알아볼 수 있게 적어주세요. 직업/역할은 지금 하고 있는 일을 한 줄로 적으면 됩니다.
+              </p>
               <Input 
                 placeholder="닉네임 (예: 대구빌더)" 
                 required 
@@ -110,10 +115,23 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
                 onChange={e => setFormData({...formData, occupation: e.target.value})}
                 className="bg-slate-900/50"
               />
+              <p className="text-xs text-slate-400 leading-relaxed">
+                서로 연결할 수 있도록 쓰레드 ID를 남겨주세요. 예: telegram:-1001234567890:17585
+              </p>
+              <Input 
+                placeholder="공유할 쓰레드 ID (예: discord:#ai-meetup 또는 telegram:-1001234567890:17585)" 
+                required 
+                value={formData.threadId}
+                onChange={e => setFormData({...formData, threadId: e.target.value})}
+                className="bg-slate-900/50"
+              />
             </div>
 
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><ShieldCheck className="w-4 h-4 text-purple-400" /> 지식 및 기술 체크</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                "잘한다"보다 "실제로 써봤다" 기준으로 선택해 주세요. 모르면 비워둬도 괜찮고, 해당되는 태그만 고르면 됩니다.
+              </p>
               <div className="space-y-4">
                 {(['Model', 'Concept', 'Tools', 'Expert'] as const).map(cat => (
                   <div key={cat} className="space-y-2">
@@ -137,6 +155,9 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
 
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><Trophy className="w-4 h-4 text-yellow-400" /> AI로 이룬 것 (현재 하는 일)</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                완성된 결과가 아니어도 좋아요. 지금 진행 중인 자동화/실험/프로젝트를 구체적으로 한두 문장으로 적어주세요.
+              </p>
               <Textarea 
                 placeholder="예: LLM으로 업무 자동화 툴 구축" 
                 required
@@ -159,6 +180,9 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
 
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><Target className="w-4 h-4 text-orange-400" /> AI로 하고 싶은 것 (오늘의 목표)</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                오늘 이 자리에서 얻고 싶은 도움이나 연결을 적어주세요. "누구에게 어떤 도움을 받고 싶은지"를 쓰면 매칭에 유리합니다.
+              </p>
               <Textarea 
                 placeholder="예: 에이전트 구축 노하우 배우기" 
                 required
@@ -181,6 +205,9 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
 
             <div className="space-y-4">
               <Label className="flex items-center gap-2"><Sparkles className="w-4 h-4 text-cyan-400" /> 명찰 키워드 3개</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                명찰에 보여줄 키워드입니다. 본인을 설명하는 단어(관심사/강점/도메인)를 짧게 적어주세요.
+              </p>
               <div className="grid grid-cols-3 gap-2">
                 {formData.keywords.map((k, i) => (
                   <Input 
