@@ -19,5 +19,6 @@ export interface UserProfile {
   aiExperienceLevel: AIExperienceLevel;
   achievement: string; // What I do/built with AI
   goal: string; // What I want to do/achieve today or in future
+  password?: string; // 6-digit PIN for editing
   createdAt: number;
 }

@@ -2,12 +2,17 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sparkles, Target, Zap, Trophy, X, Settings, Maximize2, Minimize2 } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy, X, Settings, Maximize2, Minimize2, ChevronRight, Edit3, Lock, Briefcase, ShieldCheck } from 'lucide-react';
+import { OnboardingForm } from './OnboardingForm';
+import { TECH_TAGS } from '../lib/constants';
 
 export const ProjectorView: React.FC = () => {
   const { profiles } = useAppContext();
   const [selectedProfileId, setSelectedProfileId] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'summary' | 'detail' | 'edit' | 'password'>('summary');
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
 
   const selectedProfile = profiles.find((p) => p.id === selectedProfileId) ?? null;
   const isFullscreen = typeof document !== 'undefined' && Boolean(document.fullscreenElement);
@@ -19,6 +24,33 @@ export const ProjectorView: React.FC = () => {
       return;
     }
     await document.exitFullscreen();
+  };
+
+  const handleClose = () => {
+    setSelectedProfileId(null);
+    setViewMode('summary');
+    setPasswordInput('');
+    setPasswordError(false);
+  };
+
+  const handleEditClick = () => {
+    if (!selectedProfile?.password) {
+      // Legacy data without password
+      setViewMode('edit');
+    } else {
+      setViewMode('password');
+    }
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === selectedProfile?.password) {
+      setViewMode('edit');
+      setPasswordInput('');
+      setPasswordError(false);
+    } else {
+      setPasswordError(true);
+    }
   };
 
   return (
@@ -71,7 +103,10 @@ export const ProjectorView: React.FC = () => {
             <Card
               key={profile.id}
               className="border-slate-800 bg-slate-900/40 p-3 md:p-4 hover:border-cyan-500/60 cursor-pointer transition-all hover:-translate-y-0.5"
-              onClick={() => setSelectedProfileId(profile.id)}
+              onClick={() => {
+                setSelectedProfileId(profile.id);
+                setViewMode('summary');
+              }}
             >
               <div className="flex items-start justify-between gap-2">
                 <div>
@@ -97,56 +132,169 @@ export const ProjectorView: React.FC = () => {
 
       {selectedProfile && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center"
-          onClick={() => setSelectedProfileId(null)}
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center overflow-y-auto"
+          onClick={handleClose}
         >
-          <Card
-            className="w-full max-w-3xl border-cyan-500/40 bg-slate-950 p-5 md:p-7"
+          <div 
+            className="w-full max-w-3xl my-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-between items-start gap-4">
-              <div>
-                <div className="text-3xl md:text-5xl font-black tracking-tight">{selectedProfile.nickname}</div>
-                <div className="text-sm md:text-lg text-slate-400 mt-1">{selectedProfile.occupation}</div>
+            {viewMode === 'edit' ? (
+              <div className="bg-slate-950 rounded-2xl overflow-hidden border border-cyan-500/30">
+                <OnboardingForm 
+                  mode="edit" 
+                  initialData={selectedProfile} 
+                  onComplete={() => setViewMode('detail')} 
+                />
               </div>
-              <button
-                type="button"
-                className="rounded-md border border-slate-700 p-1.5 text-slate-300 hover:text-white hover:border-cyan-500"
-                onClick={() => setSelectedProfileId(null)}
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
+            ) : viewMode === 'password' ? (
+              <Card className="border-cyan-500/40 bg-slate-950 p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <div className="w-16 h-16 bg-pink-500/10 rounded-full flex items-center justify-center text-pink-500">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                </div>
+                <h3 className="text-2xl font-black mb-2">비밀번호 확인</h3>
+                <p className="text-slate-400 mb-6">수정을 위해 6자리 PIN 번호를 입력해주세요.</p>
+                <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    autoFocus
+                    maxLength={6}
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value.replace(/[^0-9]/g, ''))}
+                    className="w-full bg-slate-900 border-2 border-slate-800 focus:border-cyan-500 rounded-xl py-4 text-center text-3xl tracking-[1em] font-black outline-none transition-all"
+                  />
+                  {passwordError && <p className="text-red-500 text-sm font-bold">비밀번호가 일치하지 않습니다.</p>}
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      className="flex-1 py-3 rounded-xl border border-slate-700 font-bold hover:bg-slate-900"
+                      onClick={() => setViewMode('detail')}
+                    >
+                      취소
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-3 rounded-xl bg-cyan-600 font-bold hover:bg-cyan-500"
+                    >
+                      확인
+                    </button>
+                  </div>
+                </form>
+              </Card>
+            ) : (
+              <Card className="border-cyan-500/40 bg-slate-950 p-5 md:p-7 relative">
+                <div className="flex justify-between items-start gap-4">
+                  <div>
+                    <div className="text-3xl md:text-5xl font-black tracking-tight">{selectedProfile.nickname}</div>
+                    <div className="text-sm md:text-lg text-slate-400 mt-1">{selectedProfile.occupation}</div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      className="rounded-md border border-slate-700 p-1.5 text-slate-300 hover:text-white hover:border-cyan-500"
+                      onClick={handleEditClick}
+                      title="수정하기"
+                    >
+                      <Edit3 className="w-5 h-5" />
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-md border border-slate-700 p-1.5 text-slate-300 hover:text-white hover:border-cyan-500"
+                      onClick={handleClose}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <Badge variant="neonCyan">{selectedProfile.aiExperienceLevel}</Badge>
-              <Badge variant="outline">SCORE {selectedProfile.calculatedScore}</Badge>
-              <Badge variant="outline" className="max-w-full truncate">THREAD {selectedProfile.threadId}</Badge>
-            </div>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Badge variant="neonCyan">{selectedProfile.aiExperienceLevel}</Badge>
+                  <Badge variant="outline">SCORE {selectedProfile.calculatedScore}</Badge>
+                  <Badge variant="outline" className="max-w-full truncate">THREAD {selectedProfile.threadId}</Badge>
+                </div>
 
-            <div className="mt-5 grid md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <p className="text-[11px] font-bold text-yellow-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
-                  <Trophy className="w-3.5 h-3.5" /> Achievement
-                </p>
-                <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.achievement}</p>
-              </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                <p className="text-[11px] font-bold text-orange-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
-                  <Target className="w-3.5 h-3.5" /> Goal
-                </p>
-                <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.goal}</p>
-              </div>
-            </div>
+                <div className={`mt-6 space-y-6 ${viewMode === 'detail' ? 'pb-4' : ''}`}>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                      <p className="text-[11px] font-bold text-yellow-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
+                        <Trophy className="w-3.5 h-3.5" /> Achievement
+                      </p>
+                      <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.achievement}</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                      <p className="text-[11px] font-bold text-orange-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
+                        <Target className="w-3.5 h-3.5" /> Goal
+                      </p>
+                      <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.goal}</p>
+                    </div>
+                  </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {selectedProfile.keywords.map((k, i) => (
-                <span key={i} className="text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-1 rounded-md">
-                  <Sparkles className="w-3 h-3 inline mr-1" />#{k}
-                </span>
-              ))}
-            </div>
-          </Card>
+                  {viewMode === 'summary' ? (
+                    <div className="flex flex-col items-center gap-4 py-4 border-t border-slate-800/50">
+                      <div className="flex flex-wrap justify-center gap-2">
+                        {selectedProfile.keywords.map((k, i) => (
+                          <span key={i} className="text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-1 rounded-md">
+                            <Sparkles className="w-3 h-3 inline mr-1" />#{k}
+                          </span>
+                        ))}
+                      </div>
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 text-cyan-400 font-bold text-sm hover:text-cyan-300 transition-colors group"
+                        onClick={() => setViewMode('detail')}
+                      >
+                        상세 내용 더보기 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-6 pt-6 border-t border-slate-800">
+                      <div className="space-y-3">
+                        <Label className="flex items-center gap-2 text-cyan-400 uppercase tracking-widest text-[10px] font-black">
+                          <ShieldCheck className="w-4 h-4" /> Selected Tech Stacks
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProfile.selectedTechs.map(techId => {
+                            const tech = TECH_TAGS.find(t => t.id === techId);
+                            return (
+                              <Badge key={techId} variant="neonCyan" className="py-1 px-3">
+                                {tech?.label || techId}
+                              </Badge>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label className="flex items-center gap-2 text-purple-400 uppercase tracking-widest text-[10px] font-black">
+                          <Sparkles className="w-4 h-4" /> Full Keywords
+                        </Label>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedProfile.keywords.map((k, i) => (
+                            <span key={i} className="text-xs font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-1 rounded-md">
+                              #{k}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-center">
+                        <button
+                          type="button"
+                          className="text-slate-500 hover:text-slate-300 text-xs underline underline-offset-4"
+                          onClick={() => setViewMode('summary')}
+                        >
+                          요약 보기로 돌아가기
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
+          </div>
         </div>
       )}
     </div>

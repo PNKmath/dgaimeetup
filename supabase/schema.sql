@@ -12,6 +12,7 @@ create table if not exists public.profiles (
   ai_experience_level text not null,
   achievement text not null,
   goal text not null,
+  password text, -- 6-digit PIN for editing
   created_at bigint not null
 );
 

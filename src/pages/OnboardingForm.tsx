@@ -221,9 +221,39 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
               </div>
             </div>
 
-            <Button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-black py-8 text-lg">
-              분석 완료 및 입장하기
-            </Button>
+            <div className="space-y-4">
+              <Label className="flex items-center gap-2"><Lock className="w-4 h-4 text-pink-400" /> 수정 비밀번호 (숫자 6자리)</Label>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                나중에 카드 내용을 수정할 때 필요합니다. 잊어버리지 않게 주의하세요!
+              </p>
+              <Input 
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={6}
+                placeholder="숫자 6자리 입력" 
+                required 
+                value={formData.password}
+                onChange={e => setFormData({...formData, password: e.target.value.replace(/[^0-9]/g, '')})}
+                className="bg-slate-900/50"
+              />
+            </div>
+
+            <div className="flex gap-3">
+              {mode === 'edit' && (
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="flex-1 border-slate-700 py-8 text-lg"
+                  onClick={onComplete}
+                >
+                  취소
+                </Button>
+              )}
+              <Button type="submit" className="flex-[2] bg-gradient-to-r from-cyan-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-black py-8 text-lg">
+                {mode === 'edit' ? '수정 완료하기' : '분석 완료 및 입장하기'}
+              </Button>
+            </div>
           </form>
         </CardContent>
       </Card>

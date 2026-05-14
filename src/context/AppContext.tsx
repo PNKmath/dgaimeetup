@@ -176,6 +176,55 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   return (
+    <AppContext.Provider value={{ profiles, addProfile, updateProfile, toggleProfileCompleted, removeCompletedProfiles, isLoading }}>
+      {children}
+    </AppContext.Provider>
+  );
+};
+
+export const useAppContext = () => {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
+};
+const toggleProfileCompleted = async (profileId: string) => {
+    let nextCompletedValue = false;
+
+    setProfiles((prev) =>
+      prev.map((profile) => {
+        if (profile.id !== profileId) return profile;
+        nextCompletedValue = !profile.isCompleted;
+        return { ...profile, isCompleted: nextCompletedValue };
+      })
+    );
+
+    if (!isSupabaseEnabled || !supabase) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_completed: nextCompletedValue })
+      .eq('id', profileId);
+
+    if (error) {
+      console.error('Supabase update failed:', error.message);
+    }
+  };
+
+  const removeCompletedProfiles = async () => {
+    const completedIds = profiles.filter((profile) => profile.isCompleted).map((profile) => profile.id);
+    setProfiles((prev) => prev.filter((profile) => !profile.isCompleted));
+
+    if (!isSupabaseEnabled || !supabase || completedIds.length === 0) return;
+
+    const { error } = await supabase.from('profiles').delete().in('id', completedIds);
+    if (error) {
+      console.error('Supabase delete failed:', error.message);
+    }
+  };
+
+  return (
     <AppContext.Provider value={{ profiles, addProfile, toggleProfileCompleted, removeCompletedProfiles, isLoading }}>
       {children}
     </AppContext.Provider>
