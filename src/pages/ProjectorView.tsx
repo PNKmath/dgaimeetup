@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sparkles, Target, Zap, Trophy, X, Settings, Maximize2, Minimize2, ChevronRight, Edit3, Lock, Briefcase, ShieldCheck } from 'lucide-react';
+import { Sparkles, Target, Zap, Trophy, X, Settings, Maximize2, Minimize2, ChevronRight, Edit3, Lock, ShieldCheck } from 'lucide-react';
 import { OnboardingForm } from './OnboardingForm';
 import { TECH_TAGS } from '../lib/constants';
+import { Label } from '../components/ui/label';
 
 export const ProjectorView: React.FC = () => {
   const { profiles } = useAppContext();

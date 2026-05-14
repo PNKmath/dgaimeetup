@@ -1,27 +1,38 @@
 import React, { useState, useMemo } from 'react';
 import { useAppContext } from '../context/AppContext';
-import type { AIExperienceLevel } from '../types';
+import type { AIExperienceLevel, UserProfile } from '../types';
 import { TECH_TAGS, calculateLevel } from '../lib/constants';
 import { Button } from '../components/ui/button';
 import { Input, Textarea } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
-import { Sparkles, Target, Briefcase, Zap, ShieldCheck, Trophy } from 'lucide-react';
+import { Sparkles, Target, Briefcase, Zap, ShieldCheck, Trophy, Lock } from 'lucide-react';
 
 const ACHIEVEMENT_SUGGESTIONS = ["업무 자동화 구축", "AI 앱 서비스 출시", "Cursor로 코딩 혁신", "LLM 로컬 서버 구동", "Prompt 최적화"];
 const GOAL_SUGGESTIONS = ["협업 파트너 찾기", "에이전트 노하우 공유", "수익화 전략 토론", "최신 모델 성능 비교", "인사이트 공유"];
 
-export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const { addProfile } = useAppContext();
+interface OnboardingFormProps {
+  onComplete: () => void;
+  initialData?: UserProfile;
+  mode?: 'create' | 'edit';
+}
+
+export const OnboardingForm: React.FC<OnboardingFormProps> = ({ 
+  onComplete, 
+  initialData, 
+  mode = 'create' 
+}) => {
+  const { addProfile, updateProfile } = useAppContext();
   const [formData, setFormData] = useState({
-    nickname: '',
-    occupation: '',
-    threadId: '',
-    keywords: ['', '', ''],
-    selectedTechs: [] as string[],
-    achievement: '',
-    goal: '',
+    nickname: initialData?.nickname || '',
+    occupation: initialData?.occupation || '',
+    threadId: initialData?.threadId || '',
+    keywords: initialData?.keywords?.length ? [...initialData.keywords] : ['', '', ''],
+    selectedTechs: initialData?.selectedTechs || [] as string[],
+    achievement: initialData?.achievement || '',
+    goal: initialData?.goal || '',
+    password: initialData?.password || '',
   });
 
   const currentScore = useMemo(() => {
@@ -39,13 +50,25 @@ export const OnboardingForm: React.FC<{ onComplete: () => void }> = ({ onComplet
       alert('최소 하나 이상의 기술 키워드를 선택해주세요!');
       return;
     }
-    await addProfile({
+    
+    if (formData.password.length !== 6 || !/^\d+$/.test(formData.password)) {
+      alert('비밀번호는 숫자 6자리여야 합니다.');
+      return;
+    }
+
+    const profileData = {
       ...formData,
-      isCompleted: false,
+      isCompleted: initialData?.isCompleted || false,
       keywords: formData.keywords.filter(k => k.trim() !== ''),
       calculatedScore: currentScore,
       aiExperienceLevel: currentLevel as AIExperienceLevel,
-    });
+    };
+
+    if (mode === 'edit' && initialData) {
+      await updateProfile(initialData.id, profileData);
+    } else {
+      await addProfile(profileData);
+    }
     onComplete();
   };
 

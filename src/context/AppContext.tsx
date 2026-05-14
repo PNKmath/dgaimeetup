@@ -5,6 +5,7 @@ import { isSupabaseEnabled, supabase } from '../lib/supabase';
 interface AppContextType {
   profiles: UserProfile[];
   addProfile: (profile: Omit<UserProfile, 'id' | 'createdAt'>) => Promise<void>;
+  updateProfile: (profileId: string, updates: Partial<UserProfile>) => Promise<void>;
   toggleProfileCompleted: (profileId: string) => Promise<void>;
   removeCompletedProfiles: () => Promise<void>;
   isLoading: boolean;
@@ -22,6 +23,7 @@ type ProfileRow = {
   ai_experience_level: AIExperienceLevel;
   achievement: string;
   goal: string;
+  password?: string;
   created_at: number;
 };
 
@@ -41,6 +43,7 @@ const toProfile = (row: ProfileRow): UserProfile => ({
   aiExperienceLevel: row.ai_experience_level,
   achievement: row.achievement,
   goal: row.goal,
+  password: row.password,
   createdAt: row.created_at,
 });
 
@@ -56,6 +59,7 @@ const toRowInsert = (profile: Omit<UserProfile, 'id'> & { id: string }): Profile
   ai_experience_level: profile.aiExperienceLevel,
   achievement: profile.achievement,
   goal: profile.goal,
+  password: profile.password,
   created_at: profile.createdAt,
 });
 
@@ -71,6 +75,7 @@ const normalizeProfile = (profile: any): UserProfile => ({
   aiExperienceLevel: (profile?.aiExperienceLevel ?? 'Beginner') as AIExperienceLevel,
   achievement: String(profile?.achievement ?? ''),
   goal: String(profile?.goal ?? ''),
+  password: profile?.password ? String(profile.password) : undefined,
   createdAt: Number(profile?.createdAt ?? Date.now()),
 });
 
@@ -140,6 +145,33 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   };
 
+  const updateProfile = async (profileId: string, updates: Partial<UserProfile>) => {
+    setProfiles((prev) =>
+      prev.map((profile) => (profile.id === profileId ? { ...profile, ...updates } : profile))
+    );
+
+    if (!isSupabaseEnabled || !supabase) return;
+
+    // Convert camelCase updates to snake_case for Supabase if necessary
+    const dbUpdates: any = {};
+    if (updates.nickname !== undefined) dbUpdates.nickname = updates.nickname;
+    if (updates.occupation !== undefined) dbUpdates.occupation = updates.occupation;
+    if (updates.threadId !== undefined) dbUpdates.thread_id = updates.threadId;
+    if (updates.isCompleted !== undefined) dbUpdates.is_completed = updates.isCompleted;
+    if (updates.keywords !== undefined) dbUpdates.keywords = updates.keywords;
+    if (updates.selectedTechs !== undefined) dbUpdates.selected_techs = updates.selectedTechs;
+    if (updates.calculatedScore !== undefined) dbUpdates.calculated_score = updates.calculatedScore;
+    if (updates.aiExperienceLevel !== undefined) dbUpdates.ai_experience_level = updates.aiExperienceLevel;
+    if (updates.achievement !== undefined) dbUpdates.achievement = updates.achievement;
+    if (updates.goal !== undefined) dbUpdates.goal = updates.goal;
+    if (updates.password !== undefined) dbUpdates.password = updates.password;
+
+    const { error } = await supabase.from('profiles').update(dbUpdates).eq('id', profileId);
+    if (error) {
+      console.error('Supabase update failed:', error.message);
+    }
+  };
+
   const toggleProfileCompleted = async (profileId: string) => {
     let nextCompletedValue = false;
 
@@ -177,55 +209,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   return (
     <AppContext.Provider value={{ profiles, addProfile, updateProfile, toggleProfileCompleted, removeCompletedProfiles, isLoading }}>
-      {children}
-    </AppContext.Provider>
-  );
-};
-
-export const useAppContext = () => {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
-  }
-  return context;
-};
-const toggleProfileCompleted = async (profileId: string) => {
-    let nextCompletedValue = false;
-
-    setProfiles((prev) =>
-      prev.map((profile) => {
-        if (profile.id !== profileId) return profile;
-        nextCompletedValue = !profile.isCompleted;
-        return { ...profile, isCompleted: nextCompletedValue };
-      })
-    );
-
-    if (!isSupabaseEnabled || !supabase) return;
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({ is_completed: nextCompletedValue })
-      .eq('id', profileId);
-
-    if (error) {
-      console.error('Supabase update failed:', error.message);
-    }
-  };
-
-  const removeCompletedProfiles = async () => {
-    const completedIds = profiles.filter((profile) => profile.isCompleted).map((profile) => profile.id);
-    setProfiles((prev) => prev.filter((profile) => !profile.isCompleted));
-
-    if (!isSupabaseEnabled || !supabase || completedIds.length === 0) return;
-
-    const { error } = await supabase.from('profiles').delete().in('id', completedIds);
-    if (error) {
-      console.error('Supabase delete failed:', error.message);
-    }
-  };
-
-  return (
-    <AppContext.Provider value={{ profiles, addProfile, toggleProfileCompleted, removeCompletedProfiles, isLoading }}>
       {children}
     </AppContext.Provider>
   );
