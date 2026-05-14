@@ -262,10 +262,15 @@ export const ProjectorView: React.FC = () => {
                           <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-1">Total Score</div>
                           <div className="text-xl font-black text-purple-400">{selectedProfile.calculatedScore}<span className="text-[10px] ml-0.5 opacity-50">pts</span></div>
                         </div>
-                        <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
+                        <a 
+                          href={`https://www.threads.net/@${selectedProfile.threadId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center hover:border-cyan-500/50 transition-colors group"
+                        >
                           <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-1">Threads ID</div>
-                          <div className="text-sm font-bold text-slate-300 truncate mt-1">@{selectedProfile.threadId}</div>
-                        </div>
+                          <div className="text-sm font-bold text-slate-300 truncate mt-1 group-hover:text-cyan-400">@{selectedProfile.threadId}</div>
+                        </a>
                       </div>
 
                       {/* Main Content Blocks */}
