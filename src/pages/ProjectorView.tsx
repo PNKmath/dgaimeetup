@@ -218,76 +218,123 @@ export const ProjectorView: React.FC = () => {
                 </div>
 
                 <div className={`mt-6 space-y-6 ${viewMode === 'detail' ? 'pb-4' : ''}`}>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                      <p className="text-[11px] font-bold text-yellow-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
-                        <Trophy className="w-3.5 h-3.5" /> Achievement
-                      </p>
-                      <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.achievement}</p>
-                    </div>
-                    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
-                      <p className="text-[11px] font-bold text-orange-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
-                        <Target className="w-3.5 h-3.5" /> Goal
-                      </p>
-                      <p className="text-sm md:text-base text-slate-200 leading-relaxed">{selectedProfile.goal}</p>
-                    </div>
-                  </div>
-
                   {viewMode === 'summary' ? (
-                    <div className="flex flex-col items-center gap-4 py-4 border-t border-slate-800/50">
-                      <div className="flex flex-wrap justify-center gap-2">
-                        {selectedProfile.keywords.map((k, i) => (
-                          <span key={i} className="text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-1 rounded-md">
-                            <Sparkles className="w-3 h-3 inline mr-1" />#{k}
-                          </span>
-                        ))}
+                    <>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                          <p className="text-[11px] font-bold text-yellow-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
+                            <Trophy className="w-3.5 h-3.5" /> Achievement
+                          </p>
+                          <p className="text-sm md:text-base text-slate-200 leading-relaxed line-clamp-3">{selectedProfile.achievement}</p>
+                        </div>
+                        <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-4">
+                          <p className="text-[11px] font-bold text-orange-500 mb-2 flex items-center gap-1 uppercase tracking-wider">
+                            <Target className="w-3.5 h-3.5" /> Goal
+                          </p>
+                          <p className="text-sm md:text-base text-slate-200 leading-relaxed line-clamp-3">{selectedProfile.goal}</p>
+                        </div>
                       </div>
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 text-cyan-400 font-bold text-sm hover:text-cyan-300 transition-colors group"
-                        onClick={() => setViewMode('detail')}
-                      >
-                        상세 내용 더보기 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                      </button>
-                    </div>
+                      <div className="flex flex-col items-center gap-4 py-4 border-t border-slate-800/50">
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {selectedProfile.keywords.map((k, i) => (
+                            <span key={i} className="text-xs font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2 py-1 rounded-md">
+                              <Sparkles className="w-3 h-3 inline mr-1" />#{k}
+                            </span>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          className="flex items-center gap-2 text-cyan-400 font-bold text-sm hover:text-cyan-300 transition-colors group"
+                          onClick={() => setViewMode('detail')}
+                        >
+                          상세 리포트 보기 <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </button>
+                      </div>
+                    </>
                   ) : (
-                    <div className="animate-in fade-in slide-in-from-top-2 duration-300 space-y-6 pt-6 border-t border-slate-800">
-                      <div className="space-y-3">
-                        <Label className="flex items-center gap-2 text-cyan-400 uppercase tracking-widest text-[10px] font-black">
-                          <ShieldCheck className="w-4 h-4" /> Selected Tech Stacks
-                        </Label>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedProfile.selectedTechs.map(techId => {
-                            const tech = TECH_TAGS.find(t => t.id === techId);
+                    <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-8 pt-2">
+                      {/* Detailed Stats Row */}
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
+                          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-1">AI Rank</div>
+                          <div className="text-xl font-black text-cyan-400">{selectedProfile.aiExperienceLevel}</div>
+                        </div>
+                        <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
+                          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-1">Total Score</div>
+                          <div className="text-xl font-black text-purple-400">{selectedProfile.calculatedScore}<span className="text-[10px] ml-0.5 opacity-50">pts</span></div>
+                        </div>
+                        <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-800 text-center">
+                          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tighter mb-1">Threads ID</div>
+                          <div className="text-sm font-bold text-slate-300 truncate mt-1">@{selectedProfile.threadId}</div>
+                        </div>
+                      </div>
+
+                      {/* Main Content Blocks */}
+                      <div className="space-y-6">
+                        <section className="relative">
+                          <div className="absolute -left-3 top-0 bottom-0 w-1 bg-yellow-500/40 rounded-full" />
+                          <h4 className="text-xs font-black text-yellow-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                            <Trophy className="w-4 h-4" /> What I've Built / Experienced
+                          </h4>
+                          <p className="text-lg md:text-xl text-slate-100 leading-snug font-medium italic">
+                            "{selectedProfile.achievement}"
+                          </p>
+                        </section>
+
+                        <section className="relative">
+                          <div className="absolute -left-3 top-0 bottom-0 w-1 bg-orange-500/40 rounded-full" />
+                          <h4 className="text-xs font-black text-orange-500 uppercase tracking-[0.2em] mb-3 flex items-center gap-2">
+                            <Target className="w-4 h-4" /> Today's Goal & Needs
+                          </h4>
+                          <p className="text-lg md:text-xl text-slate-100 leading-snug font-medium italic">
+                            "{selectedProfile.goal}"
+                          </p>
+                        </section>
+                      </div>
+
+                      {/* Tech Stack Matrix */}
+                      <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                        <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] text-center">Tech Stack Intelligence</h4>
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                          {(['Model', 'Concept', 'Tools', 'Expert'] as const).map(cat => {
+                            const catTechs = selectedProfile.selectedTechs
+                              .map(id => TECH_TAGS.find(t => t.id === id))
+                              .filter(t => t?.category === cat);
+                            
+                            if (catTechs.length === 0) return null;
+
                             return (
-                              <Badge key={techId} variant="neonCyan" className="py-1 px-3">
-                                {tech?.label || techId}
-                              </Badge>
+                              <div key={cat} className="space-y-2">
+                                <div className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">{cat}s</div>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {catTechs.map(tech => (
+                                    <Badge key={tech?.id} variant="outline" className="text-[10px] py-0 px-2 bg-slate-900/40 border-slate-800 text-slate-400">
+                                      {tech?.label}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
                             );
                           })}
                         </div>
                       </div>
 
-                      <div className="space-y-3">
-                        <Label className="flex items-center gap-2 text-purple-400 uppercase tracking-widest text-[10px] font-black">
-                          <Sparkles className="w-4 h-4" /> Full Keywords
-                        </Label>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedProfile.keywords.map((k, i) => (
-                            <span key={i} className="text-xs font-bold bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-1 rounded-md">
-                              #{k}
-                            </span>
-                          ))}
-                        </div>
+                      {/* Footer Keywords */}
+                      <div className="flex flex-wrap justify-center gap-2 pt-4">
+                        {selectedProfile.keywords.map((k, i) => (
+                          <span key={i} className="text-[10px] font-black bg-purple-500/10 text-purple-400 border border-purple-500/20 px-3 py-1 rounded-full uppercase tracking-widest">
+                            #{k}
+                          </span>
+                        ))}
                       </div>
                       
-                      <div className="flex justify-center">
+                      <div className="flex justify-center pt-2">
                         <button
                           type="button"
-                          className="text-slate-500 hover:text-slate-300 text-xs underline underline-offset-4"
+                          className="text-slate-500 hover:text-slate-300 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 transition-colors"
                           onClick={() => setViewMode('summary')}
                         >
-                          요약 보기로 돌아가기
+                          <ChevronRight className="w-3 h-3 rotate-180" /> Back to Summary
                         </button>
                       </div>
                     </div>
